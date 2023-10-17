@@ -15,6 +15,7 @@ import {
   SandboxBackendIdentifier,
 } from '@aws-amplify/platform-core';
 import { stackOutputKey } from '@aws-amplify/backend-output-schemas';
+import { CmsConstructFactory } from './cms/cms_construct_factory.js';
 
 /**
  * Class that collects and instantiates all the Amplify backend constructs
@@ -33,6 +34,9 @@ export class Backend<T extends Record<string, ConstructFactory<Construct>>> {
    * If no CDK App is specified a new one is created
    */
   constructor(constructFactories: T, stack: Stack = createDefaultStack()) {
+    (constructFactories as Record<string, ConstructFactory>)['amplify-cms'] =
+      new CmsConstructFactory();
+
     this.stackResolver = new NestedStackResolver(stack);
 
     const constructContainer = new SingletonConstructContainer(
