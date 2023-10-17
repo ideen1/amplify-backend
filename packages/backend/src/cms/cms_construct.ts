@@ -27,8 +27,8 @@ export class CmsConstruct extends Construct {
       handler: 'handler',
       bundling: {
         target: 'node18',
-        esbuildArgs: {
-          '--define:global.window': 'undefined',
+        define: {
+          window: '{}',
         },
       },
     });
