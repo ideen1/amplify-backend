@@ -1,5 +1,4 @@
 name: metrics_logger
-description: runs after other workflows and logs their status into CloudWatch
 
 on:
   workflow_run:
