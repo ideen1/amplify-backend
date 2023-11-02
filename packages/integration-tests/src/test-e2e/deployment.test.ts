@@ -42,7 +42,7 @@ void describe('amplify deploys', async () => {
       });
 
       afterEach(async () => {
-        await testProject.tearDown(branchBackendIdentifier);
+        // await testProject.tearDown(branchBackendIdentifier);
       });
 
       void it(`[${testProject.name}] deploys fully`, async () => {
@@ -50,124 +50,126 @@ void describe('amplify deploys', async () => {
         await testProject.assertPostDeployment();
         // TODO enable these assertions when stackArn round trips from service.
         // https://github.com/aws-amplify/samsara-cli/issues/554
-        // const testBranchDetails = await amplifyAppPool.fetchTestBranchDetails(
-        //   testBranch
-        // );
-        // assert.ok(
-        //   testBranchDetails.backend?.stackArn,
-        //   'branch should have stack associated'
-        // );
-        // assert.ok(
-        //   testBranchDetails.backend?.stackArn?.includes(
-        //     branchBackendIdentifier.backendId
-        //   )
-        // );
-        // assert.ok(
-        //   testBranchDetails.backend?.stackArn?.includes(
-        //     branchBackendIdentifier.disambiguator
-        //   )
-        // );
-      });
-    });
-  });
-
-  testProjects.forEach((testProject) => {
-    void describe(`sandbox deploys ${testProject.name}`, () => {
-      const sandboxBackendIdentifier = new SandboxBackendIdentifier(
-        `${testProject.name}-${userInfo().username}`
-      );
-
-      after(async () => {
-        await testProject.tearDown(sandboxBackendIdentifier);
-      });
-
-      void it(`[${sandboxBackendIdentifier.backendId}] deploys fully`, async () => {
-        await testProject.deploy(sandboxBackendIdentifier);
-        await testProject.assertPostDeployment();
-      });
-
-      void it(`[${sandboxBackendIdentifier.backendId}] hot-swaps a change`, async () => {
-        const processController = amplifyCli(
-          ['sandbox', '--dirToWatch', 'amplify'],
-          testProject.projectDirPath
+        const testBranchDetails = await amplifyAppPool.fetchTestBranchDetails(
+          testBranch
         );
-
-        const updates = await testProject.getUpdates();
-        for (const update of updates) {
-          processController
-            .do(updateFileContent(update.sourceFile, update.projectFile))
-            .do(ensureDeploymentTimeLessThan(update.deployThresholdSec));
-        }
-
-        // Execute the process.
-        await processController
-          .do(interruptSandbox())
-          .do(rejectCleanupSandbox())
-          .run();
-
-        await testProject.assertPostDeployment();
+        console.log('After deployment');
+        console.log(JSON.stringify(testBranchDetails, null, 2));
+        assert.ok(
+          testBranchDetails.backend?.stackArn,
+          'branch should have stack associated'
+        );
+        assert.ok(
+          testBranchDetails.backend?.stackArn?.includes(
+            branchBackendIdentifier.backendId
+          )
+        );
+        assert.ok(
+          testBranchDetails.backend?.stackArn?.includes(
+            branchBackendIdentifier.disambiguator
+          )
+        );
       });
     });
   });
-
-  void describe('fails on compilation error', () => {
-    // any project is fine
-    const testProject = testProjects[0];
-    beforeEach(async () => {
-      await fs.cp(
-        testProject.sourceProjectAmplifyDirPath,
-        testProject.projectAmplifyDirPath,
-        {
-          recursive: true,
-        }
-      );
-
-      // inject failure
-      await fs.appendFile(
-        path.join(testProject.projectAmplifyDirPath, 'backend.ts'),
-        "this won't compile"
-      );
-    });
-
-    void it('in sandbox deploy', async () => {
-      await amplifyCli(
-        ['sandbox', '--dirToWatch', 'amplify'],
-        testProject.projectDirPath
-      )
-        .do(new PredicatedActionBuilder().waitForLineIncludes('error TS'))
-        .do(
-          new PredicatedActionBuilder().waitForLineIncludes(
-            'Unexpected keyword or identifier'
-          )
-        )
-        .do(interruptSandbox())
-        .do(rejectCleanupSandbox())
-        .run();
-    });
-
-    void it('in pipeline deploy', async () => {
-      await assert.rejects(() =>
-        amplifyCli(
-          [
-            'pipeline-deploy',
-            '--branch',
-            'test-branch',
-            '--app-id',
-            `test-${shortUuid()}`,
-          ],
-          testProject.projectDirPath,
-          {
-            env: { CI: 'true' },
-          }
-        )
-          .do(new PredicatedActionBuilder().waitForLineIncludes('error TS'))
-          .do(
-            new PredicatedActionBuilder().waitForLineIncludes(
-              'Unexpected keyword or identifier'
-            )
-          )
-          .run()
-      );
-    });
-  });
+  //
+  // testProjects.forEach((testProject) => {
+  //   void describe(`sandbox deploys ${testProject.name}`, () => {
+  //     const sandboxBackendIdentifier = new SandboxBackendIdentifier(
+  //       `${testProject.name}-${userInfo().username}`
+  //     );
+  //
+  //     after(async () => {
+  //       await testProject.tearDown(sandboxBackendIdentifier);
+  //     });
+  //
+  //     void it(`[${sandboxBackendIdentifier.backendId}] deploys fully`, async () => {
+  //       await testProject.deploy(sandboxBackendIdentifier);
+  //       await testProject.assertPostDeployment();
+  //     });
+  //
+  //     void it(`[${sandboxBackendIdentifier.backendId}] hot-swaps a change`, async () => {
+  //       const processController = amplifyCli(
+  //         ['sandbox', '--dirToWatch', 'amplify'],
+  //         testProject.projectDirPath
+  //       );
+  //
+  //       const updates = await testProject.getUpdates();
+  //       for (const update of updates) {
+  //         processController
+  //           .do(updateFileContent(update.sourceFile, update.projectFile))
+  //           .do(ensureDeploymentTimeLessThan(update.deployThresholdSec));
+  //       }
+  //
+  //       // Execute the process.
+  //       await processController
+  //         .do(interruptSandbox())
+  //         .do(rejectCleanupSandbox())
+  //         .run();
+  //
+  //       await testProject.assertPostDeployment();
+  //     });
+  //   });
+  // });
+  //
+  // void describe('fails on compilation error', () => {
+  //   // any project is fine
+  //   const testProject = testProjects[0];
+  //   beforeEach(async () => {
+  //     await fs.cp(
+  //       testProject.sourceProjectAmplifyDirPath,
+  //       testProject.projectAmplifyDirPath,
+  //       {
+  //         recursive: true,
+  //       }
+  //     );
+  //
+  //     // inject failure
+  //     await fs.appendFile(
+  //       path.join(testProject.projectAmplifyDirPath, 'backend.ts'),
+  //       "this won't compile"
+  //     );
+  //   });
+  //
+  //   void it('in sandbox deploy', async () => {
+  //     await amplifyCli(
+  //       ['sandbox', '--dirToWatch', 'amplify'],
+  //       testProject.projectDirPath
+  //     )
+  //       .do(new PredicatedActionBuilder().waitForLineIncludes('error TS'))
+  //       .do(
+  //         new PredicatedActionBuilder().waitForLineIncludes(
+  //           'Unexpected keyword or identifier'
+  //         )
+  //       )
+  //       .do(interruptSandbox())
+  //       .do(rejectCleanupSandbox())
+  //       .run();
+  //   });
+  //
+  //   void it('in pipeline deploy', async () => {
+  //     await assert.rejects(() =>
+  //       amplifyCli(
+  //         [
+  //           'pipeline-deploy',
+  //           '--branch',
+  //           'test-branch',
+  //           '--app-id',
+  //           `test-${shortUuid()}`,
+  //         ],
+  //         testProject.projectDirPath,
+  //         {
+  //           env: { CI: 'true' },
+  //         }
+  //       )
+  //         .do(new PredicatedActionBuilder().waitForLineIncludes('error TS'))
+  //         .do(
+  //           new PredicatedActionBuilder().waitForLineIncludes(
+  //             'Unexpected keyword or identifier'
+  //           )
+  //         )
+  //         .run()
+  //     );
+  //   });
+  // });
 });

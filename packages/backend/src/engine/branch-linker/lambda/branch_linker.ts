@@ -108,6 +108,13 @@ export class AmplifyBranchLinkerCustomResourceEventHandler {
     await this.amplifyClient.send(
       new UpdateBranchCommand(updateBranchCommandInput)
     );
+
+    const branchAfterUpdate: Branch = await this.getBranch(appId, branchName);
+    console.info(
+      `Received branch details after update ${JSON.stringify(
+        branchAfterUpdate
+      )}`
+    );
   };
 
   private getBranch = async (

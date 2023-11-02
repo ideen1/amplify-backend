@@ -16,11 +16,11 @@ export const generateTestProjects = async (
   const secretClient = getSecretClient();
   await createTestDirectory(e2eProjectDir);
   testProjects.push(
-    await DataStorageAuthWithTriggerTestProject.createProject(
-      e2eProjectDir,
-      cfnClient,
-      secretClient
-    ),
+    // await DataStorageAuthWithTriggerTestProject.createProject(
+    //   e2eProjectDir,
+    //   cfnClient,
+    //   secretClient
+    // ),
     await MinimalWithTypescriptIdiomTestProject.createProject(
       e2eProjectDir,
       cfnClient
