@@ -21,7 +21,7 @@ export const generateClientConfigToFile = async (
   const packageJson = await readPackageJson();
 
   const clientConfigWriter = new ClientConfigWriter(
-    getClientConfigPath,
+    () => getClientConfigPath('foo'),
     new ClientConfigFormatter(
       new ClientConfigConverter(packageJson.name, packageJson.version)
     )

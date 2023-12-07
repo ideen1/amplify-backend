@@ -97,7 +97,7 @@ export class SandboxCommand
     }
     const watchExclusions = args.exclude ?? [];
     const clientConfigWritePath = await getClientConfigPath(
-      args['config-out-dir'],
+      args['config-out-dir'] ?? '',
       args['config-format']
     );
     watchExclusions.push(clientConfigWritePath);

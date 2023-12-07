@@ -11,7 +11,7 @@ const configFileName = 'amplifyconfiguration';
  * returns path to config file
  */
 export const getClientConfigPath = async (
-  outDir?: string,
+  outDir: string,
   format?: ClientConfigFormat
 ) => {
   const defaultArgs = {

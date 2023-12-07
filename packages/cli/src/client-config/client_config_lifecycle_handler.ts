@@ -30,7 +30,7 @@ export class ClientConfigLifecycleHandler {
   };
 
   deleteClientConfigFile = async () => {
-    const path = await getClientConfigPath(this.outDir, this.format);
+    const path = await getClientConfigPath(this.outDir ?? '', this.format);
     await fsp.rm(path);
   };
 }

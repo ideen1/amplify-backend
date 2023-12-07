@@ -1,0 +1,11 @@
+{
+  "name": "@aws-amplify/api-tests",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "devDependencies": {
+    "@aws-amplify/client-config-npm": "npm:@aws-amplify/client-config@0.4.0",
+    "@aws-amplify/client-config": "^0.4.2"
+  },
+  "license": "Apache-2.0"
+}

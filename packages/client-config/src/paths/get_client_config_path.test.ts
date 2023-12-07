@@ -22,7 +22,7 @@ mock.method(fs, 'lstatSync', (path: string) => {
 
 void describe('getClientConfigPath', () => {
   void it('returns path to config file', async () => {
-    const configPath = await getClientConfigPath();
+    const configPath = await getClientConfigPath('foo');
     assert.equal(
       configPath,
       path.join(process.cwd(), `${configFileName}.${ClientConfigFormat.JSON}`)
@@ -58,7 +58,7 @@ void describe('getClientConfigPath', () => {
 
   void it('returns path to config file with provided format, no dir path', async () => {
     const configPath = await getClientConfigPath(
-      undefined,
+      'foo',
       ClientConfigFormat.TS
     );
     assert.equal(
@@ -123,7 +123,7 @@ void describe('getClientConfigPath', () => {
   ] as const;
   expectedFileExtensions.forEach((entry) => {
     void it(`path for ${entry.format} should have ${entry.expectedFileExtension} suffix`, async () => {
-      const configPath = await getClientConfigPath(undefined, entry.format);
+      const configPath = await getClientConfigPath('foo', entry.format);
 
       assert.ok(configPath.endsWith(entry.expectedFileExtension));
     });
